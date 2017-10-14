@@ -1,0 +1,2 @@
+# sunbot
+Stateless Discord bot
