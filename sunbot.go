@@ -38,6 +38,8 @@ func main() {
 	DebugEnabled, _ = strconv.ParseBool(os.Getenv("DEBUG_OUTPUT"))
 	SillyCommandsEnabled, _ = strconv.ParseBool(os.Getenv("SILLY_COMMANDS"))
 
+	DebugPrint("Command prefix: " + DefaultPrefix)
+
 	// Initialize commands
 	commands = initCommands()
 
