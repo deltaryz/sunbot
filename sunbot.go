@@ -92,7 +92,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 
 		if cmd, ok := commands[cmdInput]; ok {
 			DebugPrint("Command is valid.")
-			discordSession.ChannelMessageSend(msgEvent.ChannelID, cmd.function(args)) // TODO: accommodate a message response struct rather than string
+			discordSession.ChannelMessageSend(msgEvent.ChannelID, cmd.function(args).response) // TODO: account for the possibility of a file embed
 		} else {
 			DebugPrint("Command is not valid.")
 			discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command.")
