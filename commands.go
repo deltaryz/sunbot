@@ -22,8 +22,12 @@ type commandOutput struct {
 func initCommands() map[string]*command {
 	commandList := []*command{}
 
-	// Define all commands here in the order they will be displayed
 	commandList = append(commandList,
+
+		// Define all commands here in the order they will be displayed by the help command
+		// The 'usage' field should use the default verb
+		// Do not include the command prefix
+
 		&command{
 			name:        "Test command",
 			description: "A simple command for testing Sunbot.",

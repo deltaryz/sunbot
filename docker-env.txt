@@ -1,0 +1,13 @@
+# Environment variable file for use with Docker (docker run --env-file ./docker-inv.txt).
+
+# Discord bot API token
+DISCORD_AUTH_TOKEN=ChangeThis
+
+# Prefix used by users to execute commands
+COMMAND_PREFIX=.
+
+# Verbose debug output
+DEBUG_OUTPUT=true
+
+# Enable the silly commands which do not use the command prefix
+SILLY_COMMANDS=true

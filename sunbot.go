@@ -16,10 +16,11 @@ const (
 
 // Global variables
 var (
-	commands         map[string]*command // verb string -> command object (see commands.go)
-	DiscordAuthToken string              // environment variable DISCORD_AUTH_TOKEN
-	DefaultPrefix    string              // environment variable COMMAND_PREFIX
-	DebugEnabled     bool                // environment variable DEBUG_OUTPUT
+	commands             map[string]*command // verb string -> command object (see commands.go)
+	DiscordAuthToken     string              // environment variable DISCORD_AUTH_TOKEN
+	DefaultPrefix        string              // environment variable COMMAND_PREFIX
+	DebugEnabled         bool                // environment variable DEBUG_OUTPUT
+	SillyCommandsEnabled bool                // environment variable SILLY_COMMANDS
 )
 
 // println, except only outputs if DEBUG_OUTPUT is true
@@ -35,9 +36,18 @@ func main() {
 	DiscordAuthToken = os.Getenv("DISCORD_AUTH_TOKEN")
 	DefaultPrefix = os.Getenv("COMMAND_PREFIX")
 	DebugEnabled, _ = strconv.ParseBool(os.Getenv("DEBUG_OUTPUT"))
+	SillyCommandsEnabled, _ = strconv.ParseBool(os.Getenv("SILLY_COMMANDS"))
 
 	// Initialize commands
 	commands = initCommands()
+
+	// Remind the user to set env vars
+	if len(DiscordAuthToken) == 0 || len(DefaultPrefix) == 0 {
+		fmt.Println("ERROR:\nYour environment variables have not been set.")
+		return
+	} else {
+		DebugPrint("Environment variables loaded successfully.")
+	}
 
 	// Initialize discordgo
 	discord, err := discordgo.New("Bot " + DiscordAuthToken)
@@ -70,6 +80,11 @@ func main() {
 // Called any time a message is sent
 func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.MessageCreate) {
 
+	if len(msgEvent.Content) == 0 {
+		DebugPrint("Message received; did not contain text.")
+		return
+	}
+
 	// Ignore all messages created by the bot itself
 	if msgEvent.Author.ID == discordSession.State.User.ID {
 		return
@@ -78,7 +93,13 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 	// Make it easier to reference message text
 	msg := msgEvent.Content
 
-	DebugPrint("\nMessage received:\n" + msgEvent.Author.Username + ": " + msg)
+	// Make sure text is actually present to avoid crashing
+	if len(msg) > 0 {
+		DebugPrint("\nMessage received:\n" + msgEvent.Author.Username + ": " + msg)
+	} else {
+		DebugPrint("\nMessage received:\n" + msgEvent.Author.Username + ": " + "(file)")
+
+	}
 
 	// Did the message start with the command prefix?
 	if msg[:1] == DefaultPrefix {
@@ -100,6 +121,25 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 
 		// TODO: implement command usage metrics
 	} else {
+		DebugPrint("Message is not a command.")
+
+		if SillyCommandsEnabled {
+
+			switch msg {
+			case "h":
+				// This is an inside joke.
+				// Don't ask, for there isn't an answer.
+				discordSession.ChannelMessageSend(msgEvent.ChannelID, "h")
+				break
+			}
+
+			// since this one dynamically accepts different numbers of letters, it can't be in the switch statement
+			if len(msg) >= 3 && strings.ToLower(msg[:3]) == "eee" {
+				discordSession.ChannelMessageSend(msgEvent.ChannelID, msg)
+			}
+
+		}
+
 		// TODO: implement metrics of standard chat messages
 	}
 
