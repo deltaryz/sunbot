@@ -78,7 +78,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 	// Make it easier to reference message text
 	msg := msgEvent.Content
 
-	DebugPrint("Message received.\n" + msgEvent.Author.Username + ": " + msg)
+	DebugPrint("\nMessage received:\n" + msgEvent.Author.Username + ": " + msg)
 
 	// Did the message start with the command prefix?
 	if msg[:1] == DefaultPrefix {
@@ -92,7 +92,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 
 		if cmd, ok := commands[cmdInput]; ok {
 			DebugPrint("Command is valid.")
-			discordSession.ChannelMessageSend(msgEvent.ChannelID, cmd.function(args).response) // TODO: account for the possibility of a file embed
+			discordSession.ChannelMessageSend(msgEvent.ChannelID, cmd.function(args, discordSession).response) // TODO: account for the possibility of a file embed
 		} else {
 			DebugPrint("Command is not valid.")
 			discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command.")

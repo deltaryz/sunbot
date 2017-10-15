@@ -1,14 +1,17 @@
 package main
 
-import "io"
+import (
+	"github.com/bwmarrin/discordgo"
+	"io"
+)
 
 // generic command struct which contains name, description, and a function
 type command struct {
-	name        string                        // human-readable name of the command
-	description string                        // description of command's function
-	usage       string                        // example of how to correctly use command - [] for optional arguments, <> for required arguments
-	verbs       []string                      // all verbs which are mapped to the same command
-	function    func([]string) *commandOutput // function which receives a slice of arguments and returns a string to display to the user
+	name        string                                            // human-readable name of the command
+	description string                                            // description of command's function
+	usage       string                                            // example of how to correctly use command - [] for optional arguments, <> for required arguments
+	verbs       []string                                          // all verbs which are mapped to the same command
+	function    func([]string, *discordgo.Session) *commandOutput // function which receives a slice of arguments and returns a string to display to the user
 }
 
 type commandOutput struct {
@@ -26,9 +29,13 @@ func initCommands() map[string]*command {
 			description: "A simple command for testing Sunbot.",
 			usage:       "test [message]",
 			verbs:       []string{"test", "test2"},
-			function: func(args []string) *commandOutput {
+			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+
+				DebugPrint("Running test command.")
+
 				output := "Pong!"
 				if len(args) > 0 {
+					DebugPrint("Message was included.")
 					output += "\nAnd you included a message! Thanks <3"
 				}
 
@@ -41,8 +48,14 @@ func initCommands() map[string]*command {
 			description: "Lists all commands and their purposes.\nCan also display detailed info about a given command.",
 			usage:       "help [verb]",
 			verbs:       []string{"help", "commands"},
-			function: func(args []string) *commandOutput {
+			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+
+				DebugPrint("Running help command.")
+
 				if len(args) <= 0 {
+
+					DebugPrint("No arguments; listing commands.")
+
 					output := "**Sunbot " + version + "**\n<https://github.com/techniponi/sunbot>\n\n__Commands:__\n\n"
 					for _, cmd := range commandList {
 						output += cmd.name + "\n`" + DefaultPrefix + cmd.usage + "`\n"
@@ -50,8 +63,12 @@ func initCommands() map[string]*command {
 
 					return &commandOutput{response: output}
 				} else {
+
+					DebugPrint("Verb was given...")
+
 					// check if command exists
 					if cmd, ok := commands[args[0]]; ok {
+						DebugPrint("Providing help for given verb.")
 						// separated for readability
 						output := "**" + cmd.name + "**\n"
 						output += cmd.description + "\n\n"
@@ -69,6 +86,7 @@ func initCommands() map[string]*command {
 
 						return &commandOutput{response: output}
 					} else {
+						DebugPrint("Given verb was not found.")
 						return &commandOutput{response: "That isn't a valid command."}
 					}
 				}
@@ -83,6 +101,7 @@ func initCommands() map[string]*command {
 	for _, cmd := range commandList {
 		for _, verb := range cmd.verbs {
 			commandMap[verb] = cmd
+			DebugPrint("Mapped '" + verb + "' to '" + cmd.name + "'")
 		}
 	}
 
