@@ -2,12 +2,16 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"github.com/bwmarrin/discordgo"
 	"os"
 	"os/signal"
-	"syscall"
 	"strconv"
+	"strings"
+	"syscall"
+)
+
+const (
+	version = "0.1 Dev"
 )
 
 // Global variables
@@ -53,7 +57,7 @@ func main() {
 	}
 
 	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	fmt.Println("Sunbot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
@@ -87,8 +91,10 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 		args = append(args[:0], args[1:]...)
 
 		if cmd, ok := commands[cmdInput]; ok {
-			discordSession.ChannelMessageSend(msgEvent.ChannelID, cmd.function(args)) // TODO: accomodate a message response struct rather than string
+			DebugPrint("Command is valid.")
+			discordSession.ChannelMessageSend(msgEvent.ChannelID, cmd.function(args)) // TODO: accommodate a message response struct rather than string
 		} else {
+			DebugPrint("Command is not valid.")
 			discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command.")
 		}
 
