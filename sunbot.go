@@ -39,18 +39,6 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-// randomRange gives a random whole integer between the given integers [min, max)
-func RandomRange(min, max int) int {
-	return rand.Intn(max-min) + min
-}
-
-// println, except only outputs if DEBUG_OUTPUT is true
-func DebugPrint(output string) {
-	if cfg.DebugEnabled {
-		fmt.Println(output)
-	}
-}
-
 func main() {
 
 	// init environment cariables
@@ -62,6 +50,8 @@ func main() {
 	}
 
 	if cfg.RedisURL != "" {
+		// default, is changed later
+		redisEnabled = false
 		// init redis
 		client = redis.NewClient(&redis.Options{
 			Addr:     cfg.RedisURL,
@@ -75,12 +65,10 @@ func main() {
 		// tell user if db didn't connect
 		if err != nil {
 			fmt.Println("Error connecting to Redis.")
+		} else {
+			// for later checks; less typing than checking if cfg.RedisURL is empty
+			redisEnabled = true
 		}
-
-		// for later checks; less typing than checking if cfg.RedisURL is empty
-		redisEnabled = true
-	} else {
-		redisEnabled = false
 	}
 
 	DebugPrint("Command prefix: " + cfg.DefaultPrefix)
@@ -108,7 +96,7 @@ func main() {
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Sunbot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
 	// Cleanly close down the Discord session.
@@ -155,6 +143,11 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 			output := cmd.function(args, discordSession)
 			if output.file == nil {
 				discordSession.ChannelMessageSend(msgEvent.ChannelID, output.response)
+
+				if output.embed != nil {
+					DebugPrint("Command contains embed; sending")
+					discordSession.ChannelMessageSendEmbed(msgEvent.ChannelID, output.embed)
+				}
 			} else {
 				DebugPrint("Response contains image, uploading now")
 				discordSession.ChannelFileSend(msgEvent.ChannelID, "image.png", output.file)
@@ -210,7 +203,11 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 				DebugPrint(userDb.String())
 				DebugPrint(userDb.Val()["username"]) // TODO: remove this (reference for later)
 
+				// database feature to do
 				// TODO: separate all database transactions to a separate go file/api which handles missing values
+				// TODO: allow users to register themselves (it's part of their user key) for the snuggle/etc commands
+				// TODO: allow admins to set specific users to be ignored by the bot
+				// TODO:
 			}
 
 			// TODO: implement metrics of standard chat messages

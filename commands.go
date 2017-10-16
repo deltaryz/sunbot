@@ -5,21 +5,24 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"os"
+	"strconv"
 )
 
 // generic command struct which contains name, description, and a function
 type command struct {
-	name        string                                            // human-readable name of the command
-	description string                                            // description of command's function
-	usage       string                                            // example of how to correctly use command - [] for optional arguments, <> for required arguments
-	verbs       []string                                          // all verbs which are mapped to the same command
-	function    func([]string, *discordgo.Session) *commandOutput // function which receives a slice of arguments and returns a string to display to the user
+	name             string                                            // human-readable name of the command
+	description      string                                            // description of command's function
+	usage            string                                            // example of how to correctly use command - [] for optional arguments, <> for required arguments
+	verbs            []string                                          // all verbs which are mapped to the same command
+	requiresDatabase bool                                              // does this command require database access?
+	function         func([]string, *discordgo.Session) *commandOutput // function which receives a slice of arguments and returns a string to display to the user
 }
 
 // output returned by all command functions, can contain a file to be uploaded
 type commandOutput struct {
 	response string
 	file     io.Reader
+	embed    *discordgo.MessageEmbed
 }
 
 func initCommands() map[string]*command {
@@ -32,10 +35,11 @@ func initCommands() map[string]*command {
 		// Do not include the command prefix
 
 		&command{
-			name:        "Display help",
-			description: "Lists all commands and their purposes.\nCan also display detailed info about a given command.",
-			usage:       "help [verb]",
-			verbs:       []string{"help", "commands"},
+			name:             "Display help",
+			description:      "Lists all commands and their purposes.\nCan also display detailed info about a given command.",
+			usage:            "help [verb]",
+			verbs:            []string{"help", "commands"},
+			requiresDatabase: false,
 			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
 
 				DebugPrint("Running help command.")
@@ -44,35 +48,50 @@ func initCommands() map[string]*command {
 
 					DebugPrint("No arguments; listing commands.")
 
-					output := "**Sunbot " + version + "**\n<https://github.com/techniponi/sunbot>\n\n__Commands:__\n\n"
+					embed := NewEmbed().
+						SetTitle("Source").
+						SetAuthor("Sunbot " + version).
+						SetDescription("Database enabled: " + strconv.FormatBool(redisEnabled)).
+						SetURL("https://github.com/techniponi/sunbot").
+						SetImage(discordSession.State.User.AvatarURL("128"))
+
 					for _, cmd := range commandList {
-						output += cmd.name + "\n`" + cfg.DefaultPrefix + cmd.usage + "`\n"
+						if cmd.requiresDatabase && !redisEnabled {
+							// Database is not enabled, this command needs it
+						} else {
+							embed.AddField(cmd.name, "`"+cfg.DefaultPrefix+cmd.usage+"`")
+						}
 					}
 
-					return &commandOutput{response: output}
+					return &commandOutput{embed: embed.MessageEmbed}
 				} else {
 
 					DebugPrint("Verb was given...")
 
 					// check if command exists
 					if cmd, ok := commands[args[0]]; ok {
+
+						embed := NewEmbed().
+							SetTitle(cmd.name).
+							SetDescription(cmd.description).
+							AddField("Usage", "`"+cfg.DefaultPrefix+cmd.usage+"`")
+
 						DebugPrint("Providing help for given verb.")
-						// separated for readability
-						output := "**" + cmd.name + "**\n"
-						output += cmd.description + "\n\n"
-						output += "Usage:\n`" + cfg.DefaultPrefix + cmd.usage + "`\n"
-						output += "Verbs:\n"
-						// for each verb
+
+						// compile verbs
+						verbOutput := ""
 						for index, verb := range cmd.verbs {
 							// don't add a comma if it's the last one
 							if index == (len(cmd.verbs) - 1) {
-								output += "`" + cfg.DefaultPrefix + verb + "`"
+								verbOutput += "`" + cfg.DefaultPrefix + verb + "`"
 							} else {
-								output += "`" + cfg.DefaultPrefix + verb + "`, "
+								verbOutput += "`" + cfg.DefaultPrefix + verb + "`, "
 							}
 						}
 
-						return &commandOutput{response: output}
+						embed.AddField("Verbs", verbOutput)
+
+						return &commandOutput{embed: embed.MessageEmbed}
 					} else {
 						DebugPrint("Given verb was not found.")
 						return &commandOutput{response: "That isn't a valid command."}
@@ -82,10 +101,11 @@ func initCommands() map[string]*command {
 		},
 
 		&command{
-			name:        "Derpibooru search",
-			description: "Searches Derpibooru with the given tags as the query, chooses a random result to display.\nUse commas to separate tags like you would on the website.",
-			usage:       "derpi <tags>",
-			verbs:       []string{"derpi", "db", "derpibooru"},
+			name:             "Derpibooru search",
+			description:      "Searches Derpibooru with the given tags as the query, chooses a random result to display.\nUse commas to separate tags like you would on the website.",
+			usage:            "derpi <tags>",
+			verbs:            []string{"derpi", "db", "derpibooru"},
+			requiresDatabase: false,
 			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
 				if len(args) < 1 {
 					DebugPrint("User ran derpibooru command with no tags given.")
@@ -116,10 +136,11 @@ func initCommands() map[string]*command {
 		},
 
 		&command{
-			name:        "Gay",
-			description: "Posts a very gay image.",
-			usage:       "gay",
-			verbs:       []string{"gay"},
+			name:             "Gay",
+			description:      "Posts a very gay image.",
+			usage:            "gay",
+			verbs:            []string{"gay"},
+			requiresDatabase: false,
 			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
 				file, err := os.Open("img/gaybats.png") // TODO: move this to database; allow users to add images (permission system?)
 				if err != nil {
@@ -127,21 +148,6 @@ func initCommands() map[string]*command {
 
 				}
 				return &commandOutput{file: file}
-			},
-		},
-
-		&command{
-			name:        "Bot source",
-			description: "Links to the github Sunbot is hosted on.",
-			usage:       "source",
-			verbs:       []string{"source", "src"},
-			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
-
-				DebugPrint("Running source command.")
-
-				output := "https://github.com/techniponi/sunbot"
-
-				return &commandOutput{response: output}
 			},
 		},
 	)
