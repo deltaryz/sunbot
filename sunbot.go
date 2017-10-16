@@ -18,7 +18,7 @@ const (
 
 // Environment variables
 type config struct {
-	DiscordAuthToken     string `env:"DISCORD_AUTH_TOKEN"`               // environment variable DISCORD_AUTH_TOKEN
+	DiscordAuthToken     string `env:"DISCORD_AUTH_TOKEN,required"`      // environment variable DISCORD_AUTH_TOKEN
 	DefaultPrefix        string `env:"COMMAND_PREFIX" envDefault:"."`    // environment variable COMMAND_PREFIX
 	DebugEnabled         bool   `env:"DEBUG_OUTPUT" envDefault:"true"`   // environment variable DEBUG_OUTPUT
 	SillyCommandsEnabled bool   `env:"SILLY_COMMANDS" envDefault:"true"` // environment variable SILLY_COMMANDS
@@ -51,21 +51,14 @@ func main() {
 	cfg = config{}
 	err := env.Parse(&cfg)
 	if err != nil {
-		fmt.Printf("Error processing environment variables.\n" + err.Error())
+		fmt.Println("Error processing environment variables.\nPlease check https://github.com/techniponi/sunbot for details.\n\n" + err.Error())
+		return
 	}
 
 	DebugPrint("Command prefix: " + cfg.DefaultPrefix)
 
 	// Initialize commands
 	commands = initCommands()
-
-	// Remind the user to set env vars
-	if len(cfg.DiscordAuthToken) == 0 || len(cfg.DefaultPrefix) == 0 {
-		fmt.Println("ERROR:\nYour environment variables have not been set.\nPlease check https://github.com/techniponi/sunbot for details.")
-		return
-	} else {
-		DebugPrint("Environment variables loaded successfully.")
-	}
 
 	// Initialize discordgo
 	discord, err := discordgo.New("Bot " + cfg.DiscordAuthToken)
