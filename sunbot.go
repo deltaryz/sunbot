@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	version = "0.2.1 Dev"
+	version = "0.3 Dev" // change any time there is a milestone of development (make sure to tag release before changing!)
 )
 
 // Environment variables
@@ -156,7 +156,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 			}
 		} else {
 			DebugPrint("Command is not valid.")
-			if msg[:3] == "..." {
+			if msg[:3] == cfg.DefaultPrefix+cfg.DefaultPrefix+cfg.DefaultPrefix {
 				// ignore; probably not intended to be a command
 			} else {
 				discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command. Use `"+cfg.DefaultPrefix+"help` if you're confused!")
