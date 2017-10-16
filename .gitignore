@@ -16,5 +16,6 @@
 # Project settings directory
 .idea/
 
-# Vendor log
+# Vendor
+vendor/
 vendor-log

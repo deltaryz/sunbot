@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"log"
+	"os"
 )
 
 // generic command struct which contains name, description, and a function
@@ -15,6 +16,7 @@ type command struct {
 	function    func([]string, *discordgo.Session) *commandOutput // function which receives a slice of arguments and returns a string to display to the user
 }
 
+// output returned by all command functions, can contain a file to be uploaded
 type commandOutput struct {
 	response string
 	file     io.Reader
@@ -129,6 +131,21 @@ func initCommands() map[string]*command {
 						return &commandOutput{response: output}
 					}
 				}
+			},
+		},
+
+		&command{
+			name:        "Gay",
+			description: "Posts a very gay image.",
+			usage:       "gay",
+			verbs:       []string{"gay"},
+			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+				file, err := os.Open("img/gaybats.png")
+				if err != nil {
+					return &commandOutput{response: "Error opening file"}
+
+				}
+				return &commandOutput{file: file}
 			},
 		},
 	)

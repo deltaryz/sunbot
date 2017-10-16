@@ -124,7 +124,13 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 
 		if cmd, ok := commands[cmdInput]; ok {
 			DebugPrint("Command is valid.")
-			discordSession.ChannelMessageSend(msgEvent.ChannelID, cmd.function(args, discordSession).response) // TODO: account for the possibility of a file embed
+			output := cmd.function(args, discordSession)
+			if output.file == nil {
+				discordSession.ChannelMessageSend(msgEvent.ChannelID, output.response)
+			} else {
+				DebugPrint("Response contains image, uploading now")
+				discordSession.ChannelFileSend(msgEvent.ChannelID, "image.png", output.file)
+			}
 		} else {
 			DebugPrint("Command is not valid.")
 			discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command.")
