@@ -156,7 +156,11 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 			}
 		} else {
 			DebugPrint("Command is not valid.")
-			discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command. Use `"+cfg.DefaultPrefix+"help` if you're confused!")
+			if msg[:3] == "..." {
+				// ignore; probably not intended to be a command
+			} else {
+				discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command. Use `"+cfg.DefaultPrefix+"help` if you're confused!")
+			}
 		}
 
 		// TODO: implement command usage metrics

@@ -113,7 +113,12 @@ func initCommands() map[string]*command {
 				} else {
 					DebugPrint("User is running derpibooru command...")
 
-					searchQuery := args[0]
+					searchQuery := ""
+
+					for _, arg := range args {
+						searchQuery += arg
+					}
+
 					// enforce 'safe' tag if channel is not nsfw
 					if !channel.NSFW {
 						DebugPrint("Channel #" + channel.Name + " is SFW, adding safe tag...")
