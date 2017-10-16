@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	version = "0.2 Dev"
+	version = "0.2.1 Dev"
 )
 
 // Environment variables
