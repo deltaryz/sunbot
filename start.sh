@@ -1,3 +1,3 @@
 #!/bin/sh
-go get github.com/techniponi/sunbot
+go get -u github.com/techniponi/sunbot
 sunbot
