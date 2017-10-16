@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/caarlos0/env"
 	"math/rand"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -16,13 +16,18 @@ const (
 	version = "0.1 Dev"
 )
 
+// Environment variables
+type config struct {
+	DiscordAuthToken     string `env:"DISCORD_AUTH_TOKEN"`               // environment variable DISCORD_AUTH_TOKEN
+	DefaultPrefix        string `env:"COMMAND_PREFIX" envDefault:"."`    // environment variable COMMAND_PREFIX
+	DebugEnabled         bool   `env:"DEBUG_OUTPUT" envDefault:"true"`   // environment variable DEBUG_OUTPUT
+	SillyCommandsEnabled bool   `env:"SILLY_COMMANDS" envDefault:"true"` // environment variable SILLY_COMMANDS
+}
+
 // Global variables
 var (
-	commands             map[string]*command // verb string -> command object (see commands.go)
-	DiscordAuthToken     string              // environment variable DISCORD_AUTH_TOKEN
-	DefaultPrefix        string              // environment variable COMMAND_PREFIX
-	DebugEnabled         bool                // environment variable DEBUG_OUTPUT
-	SillyCommandsEnabled bool                // environment variable SILLY_COMMANDS
+	commands map[string]*command // verb string -> command object (see commands.go)
+	cfg      config
 )
 
 func init() {
@@ -36,26 +41,26 @@ func RandomRange(min, max int) int {
 
 // println, except only outputs if DEBUG_OUTPUT is true
 func DebugPrint(output string) {
-	if DebugEnabled {
+	if cfg.DebugEnabled {
 		fmt.Println(output)
 	}
 }
 
 func main() {
 
-	// Initialize env configs
-	DiscordAuthToken = os.Getenv("DISCORD_AUTH_TOKEN")
-	DefaultPrefix = os.Getenv("COMMAND_PREFIX")
-	DebugEnabled, _ = strconv.ParseBool(os.Getenv("DEBUG_OUTPUT"))
-	SillyCommandsEnabled, _ = strconv.ParseBool(os.Getenv("SILLY_COMMANDS"))
+	cfg = config{}
+	err := env.Parse(&cfg)
+	if err != nil {
+		fmt.Printf("Error processing environment variables.\n" + err.Error())
+	}
 
-	DebugPrint("Command prefix: " + DefaultPrefix)
+	DebugPrint("Command prefix: " + cfg.DefaultPrefix)
 
 	// Initialize commands
 	commands = initCommands()
 
 	// Remind the user to set env vars
-	if len(DiscordAuthToken) == 0 || len(DefaultPrefix) == 0 {
+	if len(cfg.DiscordAuthToken) == 0 || len(cfg.DefaultPrefix) == 0 {
 		fmt.Println("ERROR:\nYour environment variables have not been set.\nPlease check https://github.com/techniponi/sunbot for details.")
 		return
 	} else {
@@ -63,13 +68,13 @@ func main() {
 	}
 
 	// Initialize discordgo
-	discord, err := discordgo.New("Bot " + DiscordAuthToken)
+	discord, err := discordgo.New("Bot " + cfg.DiscordAuthToken)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
 
-	// 	message handler
+	// message handler
 	discord.AddHandler(parseChatMessage)
 
 	// Open a websocket connection to Discord and begin listening.
@@ -98,7 +103,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 		return
 	}
 
-	// Ignore all messages created by the bot itself (or Doritobot)
+	// Ignore all messages created by the bot itself (or Doritobot) // TODO: separate ignored IDs into database
 	if msgEvent.Author.ID == discordSession.State.User.ID || msgEvent.Author.ID == "311737429608628224" {
 		return
 	}
@@ -115,7 +120,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 	}
 
 	// Did the message start with the command prefix?
-	if msg[:1] == DefaultPrefix {
+	if msg[:1] == cfg.DefaultPrefix {
 
 		DebugPrint("Message is a command.")
 
@@ -136,7 +141,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 	} else {
 		DebugPrint("Message is not a command.")
 
-		if SillyCommandsEnabled {
+		if cfg.SillyCommandsEnabled {
 
 			switch msg {
 			case "h":

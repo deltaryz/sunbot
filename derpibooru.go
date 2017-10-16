@@ -1,8 +1,15 @@
 package main
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+	"time"
+)
 
-// DerpiResults is a struct to contain Derpibooru search results
+// DerpiResults is a struct to contain Derpibooru's JSON search results
 type DerpiResults struct {
 	Search []struct {
 		ID               string        `json:"id"`
@@ -45,4 +52,33 @@ type DerpiResults struct {
 	} `json:"search"`
 	Total        int           `json:"total"`
 	Interactions []interface{} `json:"interactions"`
+}
+
+// Perform a Derpibooru search query with a given string of tags
+func DerpiSearchWithTags(tags string) (DerpiResults, error) {
+	// format for URL query
+	derpiTags := strings.Replace(tags, " ", "+", -1)
+
+	// make URL query
+	resp, err := http.Get("https://derpibooru.org/search.json?q=safe," + derpiTags)
+	if err != nil {
+		return DerpiResults{}, fmt.Errorf("Failed with HTTP error.")
+	}
+
+	// read response body
+	defer resp.Body.Close()
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return DerpiResults{}, fmt.Errorf("Failed with error reading response body.")
+	}
+
+	// parse json
+	results := DerpiResults{}
+	err = json.Unmarshal(respBody, &results)
+	if err != nil {
+		return DerpiResults{}, fmt.Errorf("Failed with JSON parsing error.")
+	}
+
+	return results, nil
+
 }
