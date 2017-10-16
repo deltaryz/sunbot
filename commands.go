@@ -32,25 +32,6 @@ func initCommands() map[string]*command {
 		// Do not include the command prefix
 
 		&command{
-			name:        "Test command",
-			description: "A simple command for testing Sunbot.",
-			usage:       "test [message]",
-			verbs:       []string{"test", "test2"},
-			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
-
-				DebugPrint("Running test command.")
-
-				output := "Pong!"
-				if len(args) > 0 {
-					DebugPrint("Message was included.")
-					output += "\nAnd you included a message! Thanks <3"
-				}
-
-				return &commandOutput{response: output}
-			},
-		},
-
-		&command{
 			name:        "Display help",
 			description: "Lists all commands and their purposes.\nCan also display detailed info about a given command.",
 			usage:       "help [verb]",
@@ -146,6 +127,21 @@ func initCommands() map[string]*command {
 
 				}
 				return &commandOutput{file: file}
+			},
+		},
+
+		&command{
+			name:        "Bot source",
+			description: "Links to the github Sunbot is hosted on.",
+			usage:       "source",
+			verbs:       []string{"source", "src"},
+			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+
+				DebugPrint("Running source command.")
+
+				output := "https://github.com/techniponi/sunbot"
+
+				return &commandOutput{response: output}
 			},
 		},
 	)
