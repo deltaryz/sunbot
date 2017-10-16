@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"io"
-	"log"
 	"os"
 )
 
@@ -96,7 +96,7 @@ func initCommands() map[string]*command {
 					// use derpibooru.go to perform search
 					results, err := DerpiSearchWithTags(args[0])
 					if err != nil {
-						log.Fatal(err)
+						fmt.Println(err)
 						return &commandOutput{response: "Error: " + err.Error()}
 					}
 
@@ -121,7 +121,7 @@ func initCommands() map[string]*command {
 			usage:       "gay",
 			verbs:       []string{"gay"},
 			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
-				file, err := os.Open("img/gaybats.png")
+				file, err := os.Open("img/gaybats.png") // TODO: move this to database; allow users to add images (permission system?)
 				if err != nil {
 					return &commandOutput{response: "Error opening file"}
 

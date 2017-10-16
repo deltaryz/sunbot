@@ -12,8 +12,11 @@ The `docker-env.txt` file should contain up-to-date listing in case this readme 
 
 * `DEBUG_OUTPUT` - Verbose debug output
 
-
 * `SILLY_COMMANDS` - Enable the silly commands which do not use the command prefix
+
+* `REDIS_URL` - Redis database URL:PORT (leave blank to disable)
+
+* `REDIS_PASSWORD` - Redis database password (leave blank if none)
 
 Dockerfile and launch script are included, which will always pull the latest commit on launch. A "stable" release will exist eventually.
 
