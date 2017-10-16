@@ -10,12 +10,12 @@ import (
 
 // generic command struct which contains name, description, and a function
 type command struct {
-	name             string                                            // human-readable name of the command
-	description      string                                            // description of command's function
-	usage            string                                            // example of how to correctly use command - [] for optional arguments, <> for required arguments
-	verbs            []string                                          // all verbs which are mapped to the same command
-	requiresDatabase bool                                              // does this command require database access?
-	function         func([]string, *discordgo.Session) *commandOutput // function which receives a slice of arguments and returns a string to display to the user
+	name             string                                                                // human-readable name of the command
+	description      string                                                                // description of command's function
+	usage            string                                                                // example of how to correctly use command - [] for optional arguments, <> for required arguments
+	verbs            []string                                                              // all verbs which are mapped to the same command
+	requiresDatabase bool                                                                  // does this command require database access?
+	function         func([]string, *discordgo.Channel, *discordgo.Session) *commandOutput // function which receives a slice of arguments and returns a string to display to the user
 }
 
 // output returned by all command functions, can contain a file to be uploaded
@@ -40,7 +40,7 @@ func initCommands() map[string]*command {
 			usage:            "help [verb]",
 			verbs:            []string{"help", "commands"},
 			requiresDatabase: false,
-			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+			function: func(args []string, channel *discordgo.Channel, discordSession *discordgo.Session) *commandOutput {
 
 				DebugPrint("Running help command.")
 
@@ -106,15 +106,24 @@ func initCommands() map[string]*command {
 			usage:            "derpi <tags>",
 			verbs:            []string{"derpi", "db", "derpibooru"},
 			requiresDatabase: false,
-			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+			function: func(args []string, channel *discordgo.Channel, discordSession *discordgo.Session) *commandOutput {
 				if len(args) < 1 {
 					DebugPrint("User ran derpibooru command with no tags given.")
 					return &commandOutput{response: "Error: no tags specified"}
 				} else {
 					DebugPrint("User is running derpibooru command...")
 
+					searchQuery := args[0]
+					// enforce 'safe' tag if channel is not nsfw
+					if !channel.NSFW {
+						DebugPrint("Channel #" + channel.Name + " is SFW, adding safe tag...")
+						searchQuery += ",safe"
+					}
+
+					DebugPrint("Searching with tags:\n" + searchQuery)
+
 					// use derpibooru.go to perform search
-					results, err := DerpiSearchWithTags(args[0])
+					results, err := DerpiSearchWithTags(searchQuery, cfg.DerpiApiKey)
 					if err != nil {
 						fmt.Println(err)
 						return &commandOutput{response: "Error: " + err.Error()}
@@ -141,7 +150,7 @@ func initCommands() map[string]*command {
 			usage:            "gay",
 			verbs:            []string{"gay"},
 			requiresDatabase: false,
-			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+			function: func(args []string, channel *discordgo.Channel, discordSession *discordgo.Session) *commandOutput {
 				file, err := os.Open("img/gaybats.png") // TODO: move this to database; allow users to add images (permission system?)
 				if err != nil {
 					return &commandOutput{response: "Error opening file"}

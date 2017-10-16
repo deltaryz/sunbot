@@ -54,13 +54,17 @@ type DerpiResults struct {
 	Interactions []interface{} `json:"interactions"`
 }
 
-// Perform a Derpibooru search query with a given string of tags
-func DerpiSearchWithTags(tags string) (DerpiResults, error) {
+// Perform a Derpibooru search query with a given string of tags and an API key
+func DerpiSearchWithTags(tags string, key string) (DerpiResults, error) {
 	// format for URL query
 	derpiTags := strings.Replace(tags, " ", "+", -1)
 
 	// make URL query
-	resp, err := http.Get("https://derpibooru.org/search.json?q=safe," + derpiTags)
+	urlQuery := "https://derpibooru.org/search.json?q=" + derpiTags
+	if key != "" {
+		urlQuery += "&key=" + key
+	}
+	resp, err := http.Get(urlQuery)
 	if err != nil {
 		return DerpiResults{}, fmt.Errorf("Failed with HTTP error.")
 	}

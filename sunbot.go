@@ -25,6 +25,7 @@ type config struct {
 	SillyCommandsEnabled bool   `env:"SILLY_COMMANDS" envDefault:"true"` // environment variable SILLY_COMMANDS
 	RedisURL             string `env:"REDIS_URL" envDefault:""`          // environment variable REDIS_URL
 	RedisPassword        string `env:"REDIS_PASSWORD" envDefault:""`     // environment variable REDIS_PASSWORD
+	DerpiApiKey          string `env:"DERPIBOORU_API_KEY" envDefault:""` // environment variable DERPIBOORU_API_KEY
 }
 
 // Global variables
@@ -131,7 +132,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 	// Did the message start with the command prefix?
 	if msg[:1] == cfg.DefaultPrefix {
 
-		DebugPrint("Message is a command.")
+		DebugPrint("Message starts with the command prefix.")
 
 		// prepare variables to parse command
 		args := strings.Split(msg[1:], " ")
@@ -140,7 +141,8 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 
 		if cmd, ok := commands[cmdInput]; ok {
 			DebugPrint("Command is valid.")
-			output := cmd.function(args, discordSession)
+			messageChannel, _ := discordSession.Channel(msgEvent.ChannelID)
+			output := cmd.function(args, messageChannel, discordSession)
 			if output.file == nil {
 				discordSession.ChannelMessageSend(msgEvent.ChannelID, output.response)
 
@@ -154,7 +156,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 			}
 		} else {
 			DebugPrint("Command is not valid.")
-			discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command.")
+			discordSession.ChannelMessageSend(msgEvent.ChannelID, "I don't understand that command. Use `"+cfg.DefaultPrefix+"help` if you're confused!")
 		}
 
 		// TODO: implement command usage metrics

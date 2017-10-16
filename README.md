@@ -22,6 +22,8 @@ The `.env.sample` file should contain up-to-date listing in case this readme is 
 
 * `REDIS_PASSWORD` - Redis database password (leave blank if none)
 
+* `DERPIBOORU_API_KEY` - API key for Derpiboory queries (leave blank if none)
+
 Dockerfile and launch script are included, which will always pull the latest commit on launch. A "stable" release will exist eventually.
 
 ## Commands
