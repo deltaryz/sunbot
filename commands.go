@@ -116,7 +116,7 @@ func initCommands() map[string]*command {
 					searchQuery := ""
 
 					for _, arg := range args {
-						searchQuery += arg
+						searchQuery += arg + " "
 					}
 
 					// enforce 'safe' tag if channel is not nsfw
