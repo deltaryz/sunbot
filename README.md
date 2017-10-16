@@ -3,10 +3,14 @@ Stateless Discord bot originally made for the [Cuddle Puddle](https://floof.zone
 
 ## Setup
 
+Sunbot is intended to be used with one instance per Discord server/guild. You CAN connect it to separate servers, however the databases will be merged (if you choose to use one).
+
 Sunbot is entirely stateless, however it depends on several environment variables to be set.
 The `docker-env.txt` file should contain up-to-date listing in case this readme is neglected (it's possible).
 
-* `DISCORD_AUTH_TOKEN` - Discord bot API token
+`*` - required
+
+* `DISCORD_AUTH_TOKEN`* - Discord bot API token
 
 * `COMMAND_PREFIX` - Prefix used by users to execute commands
 
