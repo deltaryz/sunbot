@@ -1,8 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/bwmarrin/discordgo"
 	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strings"
 )
 
 // generic command struct which contains name, description, and a function
@@ -93,6 +98,64 @@ func initCommands() map[string]*command {
 						DebugPrint("Given verb was not found.")
 						return &commandOutput{response: "That isn't a valid command."}
 					}
+				}
+			},
+		},
+
+		&command{
+			name:        "Derpibooru search",
+			description: "Searches Derpibooru with the given tags as the query, chooses a random result to display.\nUse commas to separate like you would on the website.",
+			usage:       "derpi <tags>",
+			verbs:       []string{"derpi", "db", "derpibooru"},
+			function: func(args []string, discordSession *discordgo.Session) *commandOutput {
+				if len(args) < 1 {
+					DebugPrint("User ran derpibooru command with no tags given.")
+					return &commandOutput{response: "Error: no tags specified"}
+				} else {
+					DebugPrint("User is running derpibooru command...")
+
+					// format for URL query
+					derpiTags := strings.Replace(args[0], " ", "+", -1)
+
+					// make URL query
+					resp, err := http.Get("https://derpibooru.org/search.json?q=safe," + derpiTags)
+					if err != nil {
+						DebugPrint("Failed with HTTP error.")
+						log.Fatal(err)
+						return &commandOutput{response: "Failed with HTTP error."}
+					}
+
+					// read response body
+					defer resp.Body.Close()
+					respBody, err := ioutil.ReadAll(resp.Body)
+					if err != nil {
+						DebugPrint("Failed with error reading response body.")
+						log.Fatal(err)
+						return &commandOutput{response: "Failed with error reading response body."}
+					}
+
+					// parse json
+					results := DerpiResults{}
+					err = json.Unmarshal(respBody, &results)
+					if err != nil {
+						DebugPrint("Failed with JSON parsing error.")
+						log.Fatal(err)
+						return &commandOutput{response: "Failed with JSON parsing error."}
+					}
+
+					// check for results
+					if len(results.Search) <= 0 {
+						DebugPrint("Derpibooru returned no results.")
+						return &commandOutput{response: "Error: no results."}
+					} else {
+
+						// pick one randomly
+						output := "http:" + results.Search[RandomRange(0, len(results.Search))].Image
+
+						return &commandOutput{response: output}
+
+					}
+
 				}
 			},
 		},

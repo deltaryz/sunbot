@@ -15,6 +15,8 @@ The `docker-env.txt` file should contain up-to-date listing in case this readme 
 
 * `SILLY_COMMANDS` - Enable the silly commands which do not use the command prefix
 
+There is a Docker container at `techniponi/sunbot:dev`, which will always pull the latest commit on launch. Tagged versions will exist Soon™.
+
 ## Commands
 
 Use `.help` and `.help [verb]` for an up-to-date list.

@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"math/rand"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 const (
@@ -22,6 +24,15 @@ var (
 	DebugEnabled         bool                // environment variable DEBUG_OUTPUT
 	SillyCommandsEnabled bool                // environment variable SILLY_COMMANDS
 )
+
+func init() {
+	rand.Seed(time.Now().Unix())
+}
+
+// randomRange gives a random whole integer between the given integers [min, max)
+func RandomRange(min, max int) int {
+	return rand.Intn(max-min) + min
+}
 
 // println, except only outputs if DEBUG_OUTPUT is true
 func DebugPrint(output string) {
@@ -45,7 +56,7 @@ func main() {
 
 	// Remind the user to set env vars
 	if len(DiscordAuthToken) == 0 || len(DefaultPrefix) == 0 {
-		fmt.Println("ERROR:\nYour environment variables have not been set.")
+		fmt.Println("ERROR:\nYour environment variables have not been set.\nPlease check https://github.com/techniponi/sunbot for details.")
 		return
 	} else {
 		DebugPrint("Environment variables loaded successfully.")
@@ -87,8 +98,8 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 		return
 	}
 
-	// Ignore all messages created by the bot itself
-	if msgEvent.Author.ID == discordSession.State.User.ID {
+	// Ignore all messages created by the bot itself (or Doritobot)
+	if msgEvent.Author.ID == discordSession.State.User.ID || msgEvent.Author.ID == "311737429608628224" {
 		return
 	}
 
