@@ -14,7 +14,7 @@ The `docker-env.txt` file should contain up-to-date listing in case this readme 
 
 * `COMMAND_PREFIX` - Prefix used by users to execute commands (default `.`)
 
-* `DEBUG_OUTPUT` - Verbose debug output (default `true`
+* `DEBUG_OUTPUT` - Verbose debug output (default `true`)
 
 * `SILLY_COMMANDS` - Enable the silly commands which do not use the command prefix (default `true`)
 
