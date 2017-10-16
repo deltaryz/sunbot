@@ -124,8 +124,8 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 		return
 	}
 
-	// Ignore all messages created by the bot itself (or Doritobot) // TODO: separate ignored IDs into database
-	if msgEvent.Author.ID == discordSession.State.User.ID || msgEvent.Author.ID == "311737429608628224" {
+	// Ignore all messages created by any bot (including itself)
+	if msgEvent.Author.Bot {
 		return
 	}
 
