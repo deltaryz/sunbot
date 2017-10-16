@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	version = "0.1 Dev"
+	version = "0.2 Dev"
 )
 
 // Environment variables
@@ -213,7 +213,6 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 				// TODO: separate all database transactions to a separate go file/api which handles missing values
 				// TODO: allow users to register themselves (it's part of their user key) for the snuggle/etc commands
 				// TODO: allow admins to set specific users to be ignored by the bot
-				// TODO:
 			}
 
 			// TODO: implement metrics of standard chat messages
