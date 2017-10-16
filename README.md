@@ -12,11 +12,11 @@ The `docker-env.txt` file should contain up-to-date listing in case this readme 
 
 * `DISCORD_AUTH_TOKEN`* - Discord bot API token
 
-* `COMMAND_PREFIX` - Prefix used by users to execute commands
+* `COMMAND_PREFIX` - Prefix used by users to execute commands (default `.`)
 
-* `DEBUG_OUTPUT` - Verbose debug output
+* `DEBUG_OUTPUT` - Verbose debug output (default `true`
 
-* `SILLY_COMMANDS` - Enable the silly commands which do not use the command prefix
+* `SILLY_COMMANDS` - Enable the silly commands which do not use the command prefix (default `true`)
 
 * `REDIS_URL` - Redis database URL:PORT (leave blank to disable)
 
