@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -61,7 +62,7 @@ func main() {
 		})
 
 		pong, err := client.Ping().Result()
-		fmt.Println("Connecting to Redis..."+pong, err) // Output: PONG <nil>
+		fmt.Println("Connecting to Redis...\n"+cfg.RedisURL+"\n"+pong, err) // Output: PONG <nil>
 
 		// tell user if db didn't connect
 		if err != nil {
@@ -163,7 +164,6 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 			}
 		}
 
-		// TODO: implement command usage metrics
 	} else {
 		DebugPrint("Message is not a command.")
 
@@ -184,33 +184,52 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 
 		}
 
+		// only execute if database is connected
 		if redisEnabled {
 
 			DebugPrint("Checking if user exists in database...")
 			// check if user is in database yet
-			userDb := client.HGetAll("user:" + msgEvent.Author.ID)
-			_, err := userDb.Result()
+			userDb, err := GetUser(msgEvent.Author, true) // create new user if it doesn't exist
 			if err != nil {
-				DebugPrint("Redis error:")
+				// some unknown error
+				fmt.Println("Database error, see log.")
 				fmt.Println(err)
-
-				if err == redis.Nil {
-					DebugPrint("User does not exist. Adding user to database.")
-					client.HMSet("user:"+msgEvent.Author.ID, map[string]interface{}{
-						"username": msgEvent.Author.Username,
-						"isBot":    msgEvent.Author.Bot,
-					})
-				} else {
-					fmt.Println("Database error, see log.")
-				}
-
 			} else {
 				DebugPrint("User does exist.")
 				DebugPrint(userDb.String())
-				DebugPrint(userDb.Val()["username"]) // TODO: remove this (reference for later)
+
+				postCount := 0
+
+				// increase total posts by one
+				if userDb.Val()["posts"] != "" {
+					postCount, _ = strconv.Atoi(userDb.Val()["posts"])
+					postCount++
+				} else {
+					postCount = 1
+				}
+
+				// actually set the user
+				_, err := SetUser(msgEvent.Author, map[string]interface{}{
+					"posts": strconv.Itoa(postCount),
+				})
+
+				if err != nil {
+					if err == redis.Nil {
+						// Create the user. This code theoretically should not ever be run, but it's here.
+						DebugPrint("somehow, a user existed a moment ago and now it doesn't. Creating it anyway...? (check your database?)")
+						_, err := CreateUser(msgEvent.Author)
+						if err != nil {
+							fmt.Println("Database error, see log.")
+							fmt.Println(err)
+						}
+					} else {
+						fmt.Println("Database error, see log.")
+						fmt.Println(err)
+					}
+				}
 
 				// database feature to do
-				// TODO: separate all database transactions to a separate go file/api which handles missing values
+				// TODO: implement more command usage metrics
 				// TODO: allow users to register themselves (it's part of their user key) for the snuggle/etc commands
 				// TODO: allow admins to set specific users to be ignored by the bot
 			}
