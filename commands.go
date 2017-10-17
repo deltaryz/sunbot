@@ -166,7 +166,7 @@ func initCommands() map[string]*command {
 		},
 
 		&command{
-			name:             "stats",
+			name:             "User stats",
 			description:      "Displays the statistics of the user.",
 			usage:            "stats [user]", // TODO: implement pinging users
 			verbs:            []string{"stats"},
