@@ -1,5 +1,10 @@
 # Sunbot
+
+![](https://orig00.deviantart.net/fdd0/f/2017/183/7/9/untitled_by_hiccupsdoesart-dbeutpr.png)
+
 Stateless Discord bot originally made for the [Cuddle Puddle](https://floof.zone/discord) discord server.
+
+Art by [HiccupsDoesArt](https://twitter.com/HiccupsDoesArt)
 
 ## Setup
 
@@ -22,10 +27,10 @@ The `.env.sample` file should contain up-to-date listing in case this readme is 
 
 * `REDIS_PASSWORD` - Redis database password (leave blank if none)
 
-* `DERPIBOORU_API_KEY` - API key for Derpiboory queries (leave blank if none)
+* `DERPIBOORU_API_KEY` - API key for Derpibooru queries (leave blank if none)
 
-Dockerfile and launch script are included, which will always pull the latest commit on launch. A "stable" release will exist eventually.
+Dockerfile and launch script are included here as well as `techniponi/sunbot` on [Docker Hub](https://hub.docker.com/r/techniponi/sunbot/), which will always pull the latest commit on launch. A "stable" release will exist eventually.
 
 ## Commands
 
-Use `.help` and `.help [verb]` for an up-to-date list. All commands and respective functionality and help info are defined in `commands.go`.
+Use `.help` and `.help [verb]` for an up-to-date list. All commands and help info are defined in `commands.go`.
