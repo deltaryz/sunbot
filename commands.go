@@ -174,17 +174,22 @@ func initCommands() map[string]*command {
 			function: func(args []string, channel *discordgo.Channel, msgEvent *discordgo.MessageCreate, discordSession *discordgo.Session) *commandOutput {
 
 				if len(args) > 0 {
-					// User tagged someone else
-					taggedUser := msgEvent.Mentions[0] // only the first one
+					if len(msgEvent.Mentions) > 0 {
+						// User tagged someone else
+						taggedUser := msgEvent.Mentions[0] // only the first one
 
-					userDb, err := GetUser(taggedUser, false)
-					if err != nil {
-						return &commandOutput{response: "That user doesn't exist in the database yet. They need to chat some!"}
+						userDb, err := GetUser(taggedUser, false)
+						if err != nil {
+							return &commandOutput{response: "That user doesn't exist in the database yet. They need to chat some!"}
+						}
+
+						posts := userDb.Val()["posts"]
+						return &commandOutput{response: taggedUser.Username + " has made " + posts + " posts!"} // TODO: format as embed, show more values
+					} else {
+						// user didn't tag anyone
+						// TODO: accept aliases as well as mentions
+						return &commandOutput{response: "To see someone's stats, tag the person directly!"}
 					}
-
-					posts := userDb.Val()["posts"]
-					return &commandOutput{response: taggedUser.Username + " has made " + posts + " posts!"} // TODO: format as embed, show more values
-
 				} else {
 					// User's own stats
 					userDb, err := GetUser(msgEvent.Author, false)
