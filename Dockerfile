@@ -4,6 +4,8 @@ FROM alpine:latest
 RUN apk update && apk --no-cache add \
         git \
         go \
+        gcc \
+        libc-dev \
         && rm -rf /var/cache/apk/*
 
 # make sure everything is where it belongs
