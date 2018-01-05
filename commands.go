@@ -135,11 +135,11 @@ func initCommands() map[string]*command {
 					DebugPrint("Derpibooru returned no results.")
 					return &commandOutput{response: "Error: no results."}
 				}
-					DebugPrint("Derpibooru returned results; parsed successfully.")
-					// pick one randomly
-					output := "http:" + results.Search[RandomRange(0, len(results.Search))].Image
+				DebugPrint("Derpibooru returned results; parsed successfully.")
+				// pick one randomly
+				output := "http:" + results.Search[RandomRange(0, len(results.Search))].Image
 
-					return &commandOutput{response: output}
+				return &commandOutput{response: output}
 			},
 		},
 
