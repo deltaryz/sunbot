@@ -64,39 +64,35 @@ func initCommands() map[string]*command {
 					}
 
 					return &commandOutput{embed: embed.MessageEmbed}
-				} else {
-
-					DebugPrint("Verb was given...")
-
-					// check if command exists
-					if cmd, ok := commands[args[0]]; ok {
-
-						embed := NewEmbed().
-							SetTitle(cmd.name).
-							SetDescription(cmd.description).
-							AddField("Usage", "`"+cfg.DefaultPrefix+cmd.usage+"`")
-
-						DebugPrint("Providing help for given verb.")
-
-						// compile verbs
-						verbOutput := ""
-						for index, verb := range cmd.verbs {
-							// don't add a comma if it's the last one
-							if index == (len(cmd.verbs) - 1) {
-								verbOutput += "`" + cfg.DefaultPrefix + verb + "`"
-							} else {
-								verbOutput += "`" + cfg.DefaultPrefix + verb + "`, "
-							}
-						}
-
-						embed.AddField("Verbs", verbOutput)
-
-						return &commandOutput{embed: embed.MessageEmbed}
-					} else {
-						DebugPrint("Given verb was not found.")
-						return &commandOutput{response: "That isn't a valid command."}
-					}
 				}
+
+				DebugPrint("Verb was given...")
+
+				// check if command exists
+				if cmd, ok := commands[args[0]]; ok {
+
+					embed := NewEmbed().
+						SetTitle(cmd.name).
+						SetDescription(cmd.description).
+						AddField("Usage", "`"+cfg.DefaultPrefix+cmd.usage+"`")
+
+					DebugPrint("Providing help for given verb.")
+
+					// compile verbs
+					verbOutput := ""
+					for index, verb := range cmd.verbs {
+						// don't add a comma if it's the last one
+						if index == (len(cmd.verbs) - 1) {
+							verbOutput += "`" + cfg.DefaultPrefix + verb + "`"
+						} else {
+							verbOutput += "`" + cfg.DefaultPrefix + verb + "`, "
+						}
+					}
+					embed.AddField("Verbs", verbOutput)
+					return &commandOutput{embed: embed.MessageEmbed}
+				}
+				DebugPrint("Given verb was not found.")
+				return &commandOutput{response: "That isn't a valid command."}
 			},
 		},
 
@@ -110,42 +106,40 @@ func initCommands() map[string]*command {
 				if len(args) < 1 {
 					DebugPrint("User ran derpibooru command with no tags given.")
 					return &commandOutput{response: "Error: no tags specified"}
-				} else {
-					DebugPrint("User is running derpibooru command...")
-
-					searchQuery := ""
-
-					for _, arg := range args {
-						searchQuery += arg + " "
-					}
-
-					// enforce 'safe' tag if channel is not nsfw
-					if !channel.NSFW {
-						DebugPrint("Channel #" + channel.Name + " is SFW, adding safe tag...")
-						searchQuery += ",safe"
-					}
-
-					DebugPrint("Searching with tags:\n" + searchQuery)
-
-					// use derpibooru.go to perform search
-					results, err := DerpiSearchWithTags(searchQuery, cfg.DerpiApiKey)
-					if err != nil {
-						fmt.Println(err)
-						return &commandOutput{response: "Error: " + err.Error()}
-					}
-
-					// check for results
-					if len(results.Search) <= 0 {
-						DebugPrint("Derpibooru returned no results.")
-						return &commandOutput{response: "Error: no results."}
-					} else {
-						DebugPrint("Derpibooru returned results; parsed successfully.")
-						// pick one randomly
-						output := "http:" + results.Search[RandomRange(0, len(results.Search))].Image
-
-						return &commandOutput{response: output}
-					}
 				}
+				DebugPrint("User is running derpibooru command...")
+
+				searchQuery := ""
+
+				for _, arg := range args {
+					searchQuery += arg + " "
+				}
+
+				// enforce 'safe' tag if channel is not nsfw
+				if !channel.NSFW {
+					DebugPrint("Channel #" + channel.Name + " is SFW, adding safe tag...")
+					searchQuery += ",safe"
+				}
+
+				DebugPrint("Searching with tags:\n" + searchQuery)
+
+				// use derpibooru.go to perform search
+				results, err := DerpiSearchWithTags(searchQuery, cfg.DerpiApiKey)
+				if err != nil {
+					fmt.Println(err)
+					return &commandOutput{response: "Error: " + err.Error()}
+				}
+
+				// check for results
+				if len(results.Search) <= 0 {
+					DebugPrint("Derpibooru returned no results.")
+					return &commandOutput{response: "Error: no results."}
+				}
+					DebugPrint("Derpibooru returned results; parsed successfully.")
+					// pick one randomly
+					output := "http:" + results.Search[RandomRange(0, len(results.Search))].Image
+
+					return &commandOutput{response: output}
 			},
 		},
 
@@ -185,20 +179,18 @@ func initCommands() map[string]*command {
 
 						posts := userDb.Val()["posts"]
 						return &commandOutput{response: taggedUser.Username + " has made " + posts + " posts!"} // TODO: format as embed, show more values
-					} else {
-						// user didn't tag anyone
-						// TODO: accept aliases as well as mentions
-						return &commandOutput{response: "To see someone's stats, tag the person directly!"}
 					}
-				} else {
-					// User's own stats
-					userDb, err := GetUser(msgEvent.Author, false)
-					if err != nil {
-						return &commandOutput{response: "You don't exist in the database yet. You need to chat some!"}
-					}
-					posts := userDb.Val()["posts"]
-					return &commandOutput{response: "You have made " + posts + " posts!"} // TODO: format as embed, show more values
+					// user didn't tag anyone
+					// TODO: accept aliases as well as mentions
+					return &commandOutput{response: "To see someone's stats, tag the person directly!"}
 				}
+				// User's own stats
+				userDb, err := GetUser(msgEvent.Author, false)
+				if err != nil {
+					return &commandOutput{response: "You don't exist in the database yet. You need to chat some!"}
+				}
+				posts := userDb.Val()["posts"]
+				return &commandOutput{response: "You have made " + posts + " posts!"} // TODO: format as embed, show more values
 			},
 		},
 	)
