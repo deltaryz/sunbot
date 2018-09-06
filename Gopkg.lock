@@ -2,18 +2,23 @@
 
 
 [[projects]]
+  digest = "1:b0fd1aac4e6eee019a17b69dc4473f6e6eaa39b80b36473bb6ed958e4f8e471c"
   name = "github.com/bwmarrin/discordgo"
   packages = ["."]
+  pruneopts = ""
   revision = "4a33b9bc7c56cfdb9bb244e33e83cb3941fe2bdc"
   version = "v0.18.0"
 
 [[projects]]
+  digest = "1:f2bae8494f09549bd57ee437cd9ed9d8529f6cee5995e5fd66b61315c4233ce3"
   name = "github.com/caarlos0/env"
   packages = ["."]
-  revision = "7cd7992b3bc86f920394f8de92c13900da1a46b7"
-  version = "v3.2.0"
+  pruneopts = ""
+  revision = "1cddc31c48c56ecd700d873edb9fd5b6f5df922a"
+  version = "v3.3.0"
 
 [[projects]]
+  digest = "1:52735cb54d5122db78b96f7c8980fcb91dba9a65497bae324996d1ea152ad7d4"
   name = "github.com/go-redis/redis"
   packages = [
     ".",
@@ -21,30 +26,42 @@
     "internal/consistenthash",
     "internal/hashtag",
     "internal/pool",
-    "internal/proto"
+    "internal/proto",
+    "internal/singleflight",
+    "internal/util",
   ]
-  revision = "73b70592cdaa9e6abdfcfbf97b4a90d80728c836"
-  version = "v6.8.0"
+  pruneopts = ""
+  revision = "f3bba01df2026fc865f7782948845db9cf44cf23"
+  version = "v6.14.1"
 
 [[projects]]
+  digest = "1:09aa5dd1332b93c96bde671bafb053249dc813febf7d5ca84e8f382ba255d67d"
   name = "github.com/gorilla/websocket"
   packages = ["."]
-  revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
-  version = "v1.2.0"
+  pruneopts = ""
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:b2d8b39397ca07929a3de3a3fd2b6ca4c8d48e9cadaa7cf2b083e27fd9e78107"
   name = "golang.org/x/crypto"
   packages = [
+    "internal/subtle",
     "nacl/secretbox",
     "poly1305",
-    "salsa20/salsa"
+    "salsa20/salsa",
   ]
-  revision = "0fcca4842a8d74bfddc2c96a073bd2a4d2a7a2e8"
+  pruneopts = ""
+  revision = "0709b304e793a5edb4a2c0145f281ecdc20838a4"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8d2f785f3719934958f51ca869efc04328f1e46e9723bb7434ad3290c27c5448"
+  input-imports = [
+    "github.com/bwmarrin/discordgo",
+    "github.com/caarlos0/env",
+    "github.com/go-redis/redis",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

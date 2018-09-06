@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/caarlos0/env"
-	"github.com/go-redis/redis"
 	"math/rand"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
 )
 
 const (
-	version = "0.3 Dev" // change any time there is a milestone of development (make sure to tag release before changing!)
+	version = "0.3b Dev" // change any time there is a milestone of development (make sure to tag release before changing!)
 )
 
 // Environment variables
@@ -24,8 +22,10 @@ type config struct {
 	DefaultPrefix        string `env:"COMMAND_PREFIX" envDefault:"."`    // environment variable COMMAND_PREFIX
 	DebugEnabled         bool   `env:"DEBUG_OUTPUT" envDefault:"true"`   // environment variable DEBUG_OUTPUT
 	SillyCommandsEnabled bool   `env:"SILLY_COMMANDS" envDefault:"true"` // environment variable SILLY_COMMANDS
+	/*
 	RedisURL             string `env:"REDIS_URL" envDefault:""`          // environment variable REDIS_URL
 	RedisPassword        string `env:"REDIS_PASSWORD" envDefault:""`     // environment variable REDIS_PASSWORD
+	*/
 	DerpiApiKey          string `env:"DERPIBOORU_API_KEY" envDefault:""` // environment variable DERPIBOORU_API_KEY
 }
 
@@ -33,8 +33,10 @@ type config struct {
 var (
 	commands     map[string]*command // verb string -> command object (see commands.go)
 	cfg          config
+	/*
 	client       *redis.Client
 	redisEnabled bool
+	*/
 )
 
 func init() {
@@ -51,6 +53,7 @@ func main() {
 		return
 	}
 
+	/*
 	if cfg.RedisURL != "" {
 		// default, is changed later
 		redisEnabled = false
@@ -72,6 +75,7 @@ func main() {
 			redisEnabled = true
 		}
 	}
+	*/
 
 	DebugPrint("Command prefix: " + cfg.DefaultPrefix)
 
@@ -184,6 +188,7 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 
 		}
 
+		/*
 		// only execute if database is connected
 		if redisEnabled {
 
@@ -228,14 +233,9 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 					}
 				}
 
-				// database feature to do
-				// TODO: implement more command usage metrics
-				// TODO: allow users to register themselves (it's part of their user key) for the snuggle/etc commands
-				// TODO: allow admins to set specific users to be ignored by the bot
 			}
-
-			// TODO: implement metrics of standard chat messages
 		}
+		*/
 
 	}
 

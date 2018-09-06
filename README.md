@@ -23,13 +23,11 @@ The `.env.sample` file should contain up-to-date listing in case this readme is 
 
 * `SILLY_COMMANDS` - Enable the silly commands which do not use the command prefix (default `true`)
 
-* `REDIS_URL` - Redis database URL:PORT (leave blank to disable)
-
-* `REDIS_PASSWORD` - Redis database password (leave blank if none)
-
 * `DERPIBOORU_API_KEY` - API key for Derpibooru queries (leave blank if none)
 
 Dockerfile and launch script are included here as well as `techniponi/sunbot` on [Docker Hub](https://hub.docker.com/r/techniponi/sunbot/), which will always pull the latest commit on launch. A "stable" release will exist eventually.
+
+Note: the Redis database functionality has been *disabled* until further notice. Focus will be directed at the stateless functionality for now.
 
 ## Commands
 
