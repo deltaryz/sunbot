@@ -5,6 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"os"
+	"os/exec"
 )
 
 // generic command struct which contains name, description, and a function
@@ -145,6 +146,64 @@ func initCommands() map[string]*command {
 		},
 
 		&command{
+			name: "Exec",
+			description: "Execute a shell command on my server.",
+			usage: "exec <command>",
+			verbs: []string{"exec"},
+			requiresDatabase: false,
+			function: func(args []string, channel *discordgo.Channel, msgEvent *discordgo.MessageCreate, discordSession *discordgo.Session) *commandOutput {
+
+				hasPermission := false
+
+				// get user object
+				DebugPrint("Getting user object")
+				user, err := discordSession.State.Member(channel.GuildID, msgEvent.Author.ID)
+				if err != nil {
+					fmt.Println(err)
+					return &commandOutput{response: "Error getting user from exec command"}
+				}
+
+				// get roles from that user
+				DebugPrint("Getting user's roles")
+				for _, roleID := range user.Roles {
+					role, err := discordSession.State.Role(channel.GuildID, roleID)
+					if err != nil {
+						fmt.Println(err)
+						return &commandOutput{response: "Error getting roles from user"}
+					}
+
+					DebugPrint("Checking for admin permission")
+					if role.Permissions&discordgo.PermissionAdministrator == 0 {
+						hasPermission = true
+					}
+				}
+
+				if hasPermission {
+
+					// convert slice to single string
+					fullCommand := ""
+					for _, arg := range args {
+						fullCommand += arg + " "
+					}
+
+					cmd := exec.Command("/bin/bash", "-c", fullCommand)
+					stdout, err := cmd.Output()
+
+					if err != nil {
+						fmt.Println(err)
+						return &commandOutput{response: "Error running command"}
+					}
+
+					return &commandOutput{
+						response: "```sh\n" + string(stdout) + "\n```",
+					}
+				}else{
+					return &commandOutput{response: "Sorry, but only administrators can use that command."}
+				}
+			},
+		},
+
+		&command{
 			name:             "Gay",
 			description:      "Posts a very gay image.",
 			usage:            "gay",
@@ -153,6 +212,7 @@ func initCommands() map[string]*command {
 			function: func(args []string, channel *discordgo.Channel, msgEvent *discordgo.MessageCreate, discordSession *discordgo.Session) *commandOutput {
 				file, err := os.Open("img/gaybats.png") // TODO: move this to database; allow users to add images (permission system?)
 				if err != nil {
+					fmt.Println(err)
 					return &commandOutput{response: "Error opening file"}
 
 				}
