@@ -148,6 +148,9 @@ func parseChatMessage(discordSession *discordgo.Session, msgEvent *discordgo.Mes
 		if cmd, ok := commands[cmdInput]; ok {
 			DebugPrint("Command is valid.")
 			messageChannel, _ := discordSession.Channel(msgEvent.ChannelID)
+
+			discordSession.ChannelTyping(msgEvent.ChannelID)
+
 			output := cmd.function(args, messageChannel, msgEvent, discordSession)
 			if output.file == nil {
 				discordSession.ChannelMessageSend(msgEvent.ChannelID, output.response)
