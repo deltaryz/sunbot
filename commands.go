@@ -5,7 +5,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"io"
 	"os"
-	"strconv"
 )
 
 // generic command struct which contains name, description, and a function
@@ -51,16 +50,18 @@ func initCommands() map[string]*command {
 					embed := NewEmbed().
 						SetTitle("Source").
 						SetAuthor("Sunbot " + version).
-						SetDescription("Database enabled: " + strconv.FormatBool(redisEnabled)).
+						//SetDescription("Database enabled: " + strconv.FormatBool(redisEnabled)).
 						SetURL("https://github.com/techniponi/sunbot").
 						SetImage(discordSession.State.User.AvatarURL("128"))
 
 					for _, cmd := range commandList {
+						/*
 						if cmd.requiresDatabase && !redisEnabled {
 							// Database is not enabled, this command needs it
 						} else {
+						*/
 							embed.AddField(cmd.name, "`"+cfg.DefaultPrefix+cmd.usage+"`")
-						}
+						//}
 					}
 
 					return &commandOutput{embed: embed.MessageEmbed}
@@ -159,6 +160,7 @@ func initCommands() map[string]*command {
 			},
 		},
 
+	/*
 		&command{
 			name:             "User stats",
 			description:      "Displays the statistics of the user.",
@@ -193,6 +195,7 @@ func initCommands() map[string]*command {
 				return &commandOutput{response: "You have made " + posts + " posts!"} // TODO: format as embed, show more values
 			},
 		},
+	*/
 	)
 
 	// Map for matching verbs to commands

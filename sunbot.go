@@ -83,6 +83,7 @@ func main() {
 	commands = initCommands()
 
 	// Initialize discordgo
+	DebugPrint("Initiating session with config token: " + cfg.DiscordAuthToken)
 	discord, err := discordgo.New("Bot " + cfg.DiscordAuthToken)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)

@@ -12,32 +12,31 @@ import (
 // DerpiResults is a struct to contain Derpibooru's JSON search results
 type DerpiResults struct {
 	Search []struct {
-		ID               string        `json:"id"`
-		CreatedAt        time.Time     `json:"created_at"`
-		UpdatedAt        time.Time     `json:"updated_at"`
-		DuplicateReports []interface{} `json:"duplicate_reports"`
-		FirstSeenAt      time.Time     `json:"first_seen_at"`
-		UploaderID       string        `json:"uploader_id"`
-		Score            int           `json:"score"`
-		CommentCount     int           `json:"comment_count"`
-		Width            int           `json:"width"`
-		Height           int           `json:"height"`
-		FileName         string        `json:"file_name"`
-		Description      string        `json:"description"`
-		Uploader         string        `json:"uploader"`
-		Image            string        `json:"image"`
-		Upvotes          int           `json:"upvotes"`
-		Downvotes        int           `json:"downvotes"`
-		Faves            int           `json:"faves"`
-		Tags             string        `json:"tags"`
-		TagIds           []string      `json:"tag_ids"`
-		AspectRatio      float64       `json:"aspect_ratio"`
-		OriginalFormat   string        `json:"original_format"`
-		MimeType         string        `json:"mime_type"`
-		Sha512Hash       string        `json:"sha512_hash"`
-		OrigSha512Hash   string        `json:"orig_sha512_hash"`
-		SourceURL        string        `json:"source_url"`
-		Representations  struct {
+		ID              int       `json:"id"`
+		CreatedAt       time.Time `json:"created_at"`
+		UpdatedAt       time.Time `json:"updated_at"`
+		FirstSeenAt     time.Time `json:"first_seen_at"`
+		Score           int       `json:"score"`
+		CommentCount    int       `json:"comment_count"`
+		Width           int       `json:"width"`
+		Height          int       `json:"height"`
+		FileName        string    `json:"file_name"`
+		Description     string    `json:"description"`
+		Uploader        string    `json:"uploader"`
+		UploaderID      int       `json:"uploader_id"`
+		Image           string    `json:"image"`
+		Upvotes         int       `json:"upvotes"`
+		Downvotes       int       `json:"downvotes"`
+		Faves           int       `json:"faves"`
+		Tags            string    `json:"tags"`
+		TagIds          []int     `json:"tag_ids"`
+		AspectRatio     float64   `json:"aspect_ratio"`
+		OriginalFormat  string    `json:"original_format"`
+		MimeType        string    `json:"mime_type"`
+		Sha512Hash      string    `json:"sha512_hash"`
+		OrigSha512Hash  string    `json:"orig_sha512_hash"`
+		SourceURL       string    `json:"source_url"`
+		Representations struct {
 			ThumbTiny  string `json:"thumb_tiny"`
 			ThumbSmall string `json:"thumb_small"`
 			Thumb      string `json:"thumb"`
@@ -67,6 +66,7 @@ func DerpiSearchWithTags(tags string, key string) (DerpiResults, error) {
 	}
 	resp, err := http.Get(urlQuery)
 	if err != nil {
+		fmt.Println(err)
 		return DerpiResults{}, fmt.Errorf("Failed with HTTP error.")
 	}
 
@@ -74,6 +74,7 @@ func DerpiSearchWithTags(tags string, key string) (DerpiResults, error) {
 	defer resp.Body.Close()
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println(err)
 		return DerpiResults{}, fmt.Errorf("Failed with error reading response body.")
 	}
 
@@ -81,6 +82,7 @@ func DerpiSearchWithTags(tags string, key string) (DerpiResults, error) {
 	results := DerpiResults{}
 	err = json.Unmarshal(respBody, &results)
 	if err != nil {
+		fmt.Println(err)
 		return DerpiResults{}, fmt.Errorf("Failed with JSON parsing error.")
 	}
 
