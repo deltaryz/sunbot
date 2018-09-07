@@ -173,7 +173,7 @@ func initCommands() map[string]*command {
 					}
 
 					DebugPrint("Checking for admin permission")
-					if role.Permissions&discordgo.PermissionAdministrator == 0 {
+					if role.Permissions&discordgo.PermissionAdministrator != 0 {
 						hasPermission = true
 					}
 				}
