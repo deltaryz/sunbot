@@ -27,7 +27,3 @@
 [[constraint]]
   name = "github.com/caarlos0/env"
   version = "3.2.0"
-
-[[constraint]]
-  name = "github.com/go-redis/redis"
-  version = "6.8.0"

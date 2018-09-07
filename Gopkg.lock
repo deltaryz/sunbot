@@ -18,23 +18,6 @@
   version = "v3.3.0"
 
 [[projects]]
-  digest = "1:52735cb54d5122db78b96f7c8980fcb91dba9a65497bae324996d1ea152ad7d4"
-  name = "github.com/go-redis/redis"
-  packages = [
-    ".",
-    "internal",
-    "internal/consistenthash",
-    "internal/hashtag",
-    "internal/pool",
-    "internal/proto",
-    "internal/singleflight",
-    "internal/util",
-  ]
-  pruneopts = ""
-  revision = "f3bba01df2026fc865f7782948845db9cf44cf23"
-  version = "v6.14.1"
-
-[[projects]]
   digest = "1:09aa5dd1332b93c96bde671bafb053249dc813febf7d5ca84e8f382ba255d67d"
   name = "github.com/gorilla/websocket"
   packages = ["."]
@@ -61,7 +44,6 @@
   input-imports = [
     "github.com/bwmarrin/discordgo",
     "github.com/caarlos0/env",
-    "github.com/go-redis/redis",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
