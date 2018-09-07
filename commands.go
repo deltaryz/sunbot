@@ -147,7 +147,7 @@ func initCommands() map[string]*command {
 
 		&command{
 			name: "Exec",
-			description: "Execute a shell command on my server.",
+			description: "Execute a shell command on my server.\nRequires admin permissions.",
 			usage: "exec <command>",
 			verbs: []string{"exec"},
 			requiresDatabase: false,
