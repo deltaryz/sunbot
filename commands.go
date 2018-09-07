@@ -204,6 +204,85 @@ func initCommands() map[string]*command {
 		},
 
 		&command{
+			name:             "Join",
+			description:      "I will join the voice channel of the sender.",
+			usage:            "join",
+			verbs:            []string{"join"},
+			requiresDatabase: false,
+			function: func(args []string, channel *discordgo.Channel, msgEvent *discordgo.MessageCreate, discordSession *discordgo.Session) *commandOutput {
+
+				voiceConnection, err := JoinUserVoiceChannel(discordSession, msgEvent.Author.ID)
+				if err != nil {
+					fmt.Println(err)
+					return &commandOutput{response: "Error joining voice channel - are you in one in this server?"}
+				}
+				fmt.Println("Joined channel:")
+				fmt.Println(voiceConnection)
+
+				// TODO: fix audio
+/*
+				DebugPrint("Setting options")
+				options := dca.StdEncodeOptions
+				options.RawOutput = true
+				options.Bitrate = 96
+				options.Application = "lowdelay"
+
+				DebugPrint("Getting info")
+				videoInfo, err := ytdl.GetVideoInfo("https://www.youtube.com/watch?v=gWBZJkfzhNY")
+				if err != nil {
+					DebugPrint("Error getting info")
+					fmt.Println(err)
+				}
+
+				DebugPrint("Setting format")
+				format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
+				downloadURL, err := videoInfo.GetDownloadURL(format)
+				if err != nil {
+					DebugPrint("Error setting format")
+					fmt.Println(err)
+				}
+
+				DebugPrint("Encoding file")
+				encodingSession, err := dca.EncodeFile(downloadURL.String(), options)
+				if err != nil {
+					DebugPrint("Error encoding file")
+					fmt.Println(err)
+				}
+				defer encodingSession.Cleanup()
+
+				DebugPrint("Initiating stream")
+				done := make(chan error)
+				dca.NewStream(encodingSession, voiceConnection, done)
+				playErr := <- done
+				if playErr != nil && playErr != io.EOF {
+					fmt.Println(playErr)
+				}
+*/
+				return &commandOutput{response: "Joining your channel!"}
+			},
+		},
+
+		&command{
+			name:             "Leave",
+			description:      "I will leave the voice channel.",
+			usage:            "leave",
+			verbs:            []string{"leave", "disconnect", "quit", "exit"},
+			requiresDatabase: false,
+			function: func(args []string, channel *discordgo.Channel, msgEvent *discordgo.MessageCreate, discordSession *discordgo.Session) *commandOutput {
+
+				for _, voiceChannel := range discordSession.VoiceConnections {
+					DebugPrint("Looking for voice channel in this guild...")
+					if voiceChannel.GuildID == channel.GuildID {
+						DebugPrint("Found a channel in this guild!")
+						voiceChannel.Disconnect()
+						return &commandOutput{response: "Bye!"}
+					}
+				}
+				return &commandOutput{response: ""}
+			},
+		},
+
+		&command{
 			name:             "Gay",
 			description:      "Posts a very gay image.",
 			usage:            "gay",
