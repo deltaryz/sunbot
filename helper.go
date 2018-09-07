@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"math/rand"
@@ -249,4 +250,28 @@ func (e *Embed) TruncateFooter() *Embed {
 		e.Footer.Text = e.Footer.Text[:EmbedLimitFooter]
 	}
 	return e
+}
+
+// Finds the VoiceState object that a user currently belongs in
+func FindUserVoiceState(session *discordgo.Session, userid string) (*discordgo.VoiceState, error) {
+	for _, guild := range session.State.Guilds {
+		for _, vs := range guild.VoiceStates {
+			if vs.UserID == userid {
+				return vs, nil
+			}
+		}
+	}
+	return nil, errors.New("Could not find user's voice state")
+}
+
+// Has the bot join the channel of a user, calling FindUserVoiceState() to locate the correct channel
+func JoinUserVoiceChannel(session *discordgo.Session, userID string) (*discordgo.VoiceConnection, error) {
+	// Find a user's current voice channel
+	vs, err := FindUserVoiceState(session, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Join the user's channel and start unmuted and deafened.
+	return session.ChannelVoiceJoin(vs.GuildID, vs.ChannelID, false, false)
 }
